@@ -1,0 +1,435 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins", "driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id               String      @id @default(cuid())
+  email            String      @unique
+  name             String?
+  emailVerified    Boolean
+  image            String?
+  role             String?
+  banned           Boolean?
+  banReason        String?
+  banExpires       Int?
+  division         String
+  district         String
+  upazila          String
+  stationId        String
+  twoFactorEnabled Boolean?
+  createdAt        DateTime
+  updatedAt        DateTime
+  sessions         sessions[]
+  accounts         accounts[]
+  twoFactor        twoFactor[]
+
+  Station       Station         @relation(fields: [stationId], references: [id], onDelete: Restrict)
+  ObservingTime ObservingTime[]
+  actorUser     logs[]          @relation("ActorUser")
+  targetUser    logs[]          @relation("TargetUser")
+  agroclimatologicalData AgroclimatologicalData[] // Added relation field
+  soilMoistureData SoilMoistureData[]
+  sunshineData SunshineData[]
+
+}
+
+model sessions {
+  id             String   @id @default(cuid())
+  expiresAt      DateTime
+  token          String   @unique
+  impersonatedBy String?
+  createdAt      DateTime
+  updatedAt      DateTime
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, token])
+}
+
+model accounts {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@index([userId])
+}
+
+model verifications {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@index([identifier])
+}
+
+model twoFactor {
+  id          String  @id @default(cuid())
+  userId      String
+  secret      String?
+  backupCodes String?
+
+  user users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model logs {
+  id          String   @id @default(cuid())
+  userId      String?
+  targetId    String?
+  actorEmail  String?
+  targetEmail String?
+  role        String
+  action      String
+  actionText  String?
+  module      String?
+  details     Json?
+  createdAt   DateTime @default(now())
+
+  actor      users? @relation("ActorUser", fields: [userId], references: [id], onDelete: SetNull)
+  targetUser users? @relation("TargetUser", fields: [targetId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([targetId])
+  @@index([role])
+  @@index([action])
+}
+
+model Station {
+  id            String          @id @default(cuid())
+  stationId     String
+  name          String
+  securityCode  String
+  latitude      Float
+  longitude     Float
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  users         users[]
+  ObservingTime ObservingTime[]
+  soilMoistureData SoilMoistureData[]
+  sunshineData SunshineData[]
+  agroclimatologicalData AgroclimatologicalData[]
+}
+
+model ObservingTime {
+  id        String   @id @default(cuid())
+  userId    String
+  stationId String
+  utcTime   DateTime
+  localTime DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user                users                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  station             Station               @relation(fields: [stationId], references: [id], onDelete: Restrict)
+  MeteorologicalEntry MeteorologicalEntry[]
+  WeatherObservation  WeatherObservation[]
+  DailySummary        DailySummary[]
+  SynopticCode        SynopticCode[]
+
+  @@unique([utcTime, stationId])
+  @@index([userId])
+  @@index([localTime])
+}
+
+model MeteorologicalEntry {
+  id                        String    @id @default(cuid())
+  observingTimeId           String
+  dataType                  String
+  subIndicator              String
+  alteredThermometer        String
+  barAsRead                 String
+  correctedForIndex         String
+  heightDifference          String
+  correctionForTemp         String
+  stationLevelPressure      String
+  seaLevelReduction         String
+  correctedSeaLevelPressure String
+  afternoonReading          String
+  pressureChange24h         String
+  dryBulbAsRead             String
+  wetBulbAsRead             String
+  maxMinTempAsRead          String
+  dryBulbCorrected          String
+  wetBulbCorrected          String
+  maxMinTempCorrected       String
+  Td                        String
+  relativeHumidity          String
+  squallConfirmed           String
+  squallForce               String
+  squallDirection           String
+  squallTime                String
+  horizontalVisibility      String
+  miscMeteors               String
+  pastWeatherW1             String
+  pastWeatherW2             String
+  presentWeatherWW          String
+  c2Indicator               String
+  submittedAt               DateTime?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  ObservingTime ObservingTime @relation(fields: [observingTimeId], references: [id], onDelete: Restrict)
+
+  @@index([observingTimeId])
+}
+
+model WeatherObservation {
+  id              String @id @default(cuid())
+  tabActive       String
+  cardIndicator   String?
+  observingTimeId String
+
+  // LOW CLOUD
+  lowCloudForm      String?
+  lowCloudHeight    String?
+  lowCloudAmount    String?
+  lowCloudDirection String?
+
+  // MEDIUM CLOUD
+  mediumCloudForm      String?
+  mediumCloudHeight    String?
+  mediumCloudAmount    String?
+  mediumCloudDirection String?
+
+  // HIGH CLOUD
+  highCloudForm      String?
+  highCloudHeight    String?
+  highCloudAmount    String?
+  highCloudDirection String?
+
+  // TOTAL CLOUD
+  totalCloudAmount String?
+
+  // SIGNIFICANT CLOUD LAYERS
+  layer1Form   String?
+  layer1Height String?
+  layer1Amount String?
+
+  layer2Form   String?
+  layer2Height String?
+  layer2Amount String?
+
+  layer3Form   String?
+  layer3Height String?
+  layer3Amount String?
+
+  layer4Form   String?
+  layer4Height String?
+  layer4Amount String?
+
+  // RAINFALL
+  rainfallTimeStart      DateTime? // এখন UTC টাইমস্ট্যাম্প স্টোর করবে
+  rainfallTimeEnd        DateTime?
+  rainfallSincePrevious  String?
+  rainfallDuringPrevious String?
+  rainfallLast24Hours    String?
+  isIntermittentRain     Boolean? // নতুন ফিল্ড
+
+
+  // WIND
+  windFirstAnemometer  String?
+  windSecondAnemometer String?
+  windSpeed            String?
+  windDirection        String?
+  submittedAt          DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // OBSERVER METADATA
+  observerInitial String?
+
+  ObservingTime ObservingTime @relation(fields: [observingTimeId], references: [id], onDelete: Restrict)
+}
+
+model DailySummary {
+  id                    String   @id @default(cuid())
+  observingTimeId       String
+  dataType              String?
+  avStationPressure     String?
+  avSeaLevelPressure    String?
+  avDryBulbTemperature  String?
+  avWetBulbTemperature  String?
+  maxTemperature        String?
+  minTemperature        String?
+  totalPrecipitation    String?
+  avDewPointTemperature String?
+  avRelativeHumidity    String?
+  windSpeed             String?
+  windDirectionCode     String?
+  maxWindSpeed          String?
+  maxWindDirection      String?
+  avTotalCloud          String?
+  lowestVisibility      String?
+  totalRainDuration     String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  ObservingTime ObservingTime @relation(fields: [observingTimeId], references: [id], onDelete: Restrict)
+}
+
+model SynopticCode {
+  id                String  @id @default(cuid())
+  observingTimeId   String
+  dataType          String? @default("SYNOP")
+  // Synoptic Measurement Fields
+  C1                String? // 0
+  Iliii             String? // 1
+  iRiXhvv           String? // 2
+  Nddff             String? // 3
+  S1nTTT            String? // 4
+  S2nTddTddTdd      String? // 5
+  P3PPP4PPPP        String? // 6 (combined 3 & 4 groups)
+  RRRtR6            String? // 7
+  wwW1W2            String? // 8
+  NhClCmCh          String? // 9
+  S2nTnTnTnInInInIn String? // 10 (combined 2 and I groups)
+  D56DLDMDH         String? // 11
+  CD57DaEc          String? // 12
+  avgTotalCloud     String? // 13
+  C2                String? // 14
+  GG                String? // 15
+  P24Group58_59     String? // 16 (58+59 combined)
+  R24Group6_7       String? // 17 (6+7 for 24hr rain)
+  NsChshs           String? // 18
+  dqqqt90           String? // 19
+  fqfqfq91          String? // 20
+
+  weatherRemark String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ObservingTime ObservingTime @relation(fields: [observingTimeId], references: [id], onDelete: Restrict)
+}
+
+model AgroclimatologicalData {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Station Information
+  elevation   Float
+  date      DateTime
+  utcTime   DateTime
+
+  // Solar & Sunshine Data
+  solarRadiation Float?
+  sunShineHour   Float?
+
+  // Air Temperature Data
+  airTempDry05m  Float?
+  airTempWet05m  Float?
+  airTempDry12m  Float?
+  airTempWet12m  Float?
+  airTempDry22m  Float?
+  airTempWet22m  Float?
+
+  // Temperature Summary
+  minTemp      Float?
+  maxTemp      Float?
+  meanTemp     Float?
+  grassMinTemp Float?
+
+  // Soil Temperature Data
+  soilTemp5cm  Float?
+  soilTemp10cm Float?
+  soilTemp20cm Float?
+  soilTemp30cm Float?
+  soilTemp50cm Float?
+
+  // Soil Moisture Data
+  soilMoisture0to20cm  Float?
+  soilMoisture20to50cm Float?
+
+  // Humidity & Evaporation Data
+  panWaterEvap     Float?
+  relativeHumidity Float?
+  evaporation      Float?
+  dewPoint         Float?
+
+  // Weather Measurements
+  windSpeed Float?
+  duration  Float?
+  rainfall  Float?
+
+  // User who submitted the data
+  userId String?
+  user   users? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // relationships
+  stationId String
+  station   Station  @relation(fields: [stationId], references: [id])
+
+  @@unique([stationId, date])
+  @@map("agroclimatological_data")
+}
+
+model SoilMoistureData {
+  id          String   @id @default(cuid())
+  date        DateTime
+  depth       Int
+  w1          Float
+  w2          Float
+  w3          Float
+  Ws          Float    
+  Ds          Float    
+  Sm          Float    
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  stationId   String
+  station     Station  @relation(fields: [stationId], references: [id])
+  userId      String
+  user        users    @relation(fields: [userId], references: [id])
+
+  @@unique([date, depth, stationId])
+}
+
+model SunshineData {
+  id        String   @id @default(cuid())
+  date      DateTime
+  total     Float
+  hours     Json 
+
+  // relations
+  stationId String
+  station   Station  @relation(fields: [stationId], references: [id])
+
+  userId    String
+  user      users    @relation(fields: [userId], references: [id])
+
+  @@unique([date, stationId])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

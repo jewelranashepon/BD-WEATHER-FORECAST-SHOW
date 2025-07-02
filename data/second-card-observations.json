@@ -1,0 +1,18 @@
+[
+  {
+    "clouds": {},
+    "significantClouds": {},
+    "rainfall": {},
+    "wind": {},
+    "observer": {
+      "observer-initial": "1",
+      "observation-time": "2025-05-06T10:36",
+      "station-id": "1"
+    },
+    "metadata": {
+      "createdAt": "2025-05-06T04:36:36.011Z",
+      "id": "1746506196011",
+      "requestId": "ae9df3f0-1421-46e1-9dd1-4498ef366319"
+    }
+  }
+]
