@@ -989,9 +989,7 @@ const SecondCardTable = forwardRef(({ refreshTrigger = 0 }: SecondCardTableProps
                     <th rowSpan={3} className="border border-slate-300 bg-gradient-to-b from-gray-50 to-gray-100 p-1 text-gray-800">
                       OBSERVER
                     </th>
-                    <th rowSpan={3} className="border border-slate-300 bg-gradient-to-b from-gray-50 to-gray-100 p-1 text-gray-800">
-                      ACTIONS
-                    </th>
+                   
                   </tr>
 
                   {/* Sub-Grouping for CLOUD + SIGNIFICANT CLOUD */}
@@ -1320,40 +1318,6 @@ const SecondCardTable = forwardRef(({ refreshTrigger = 0 }: SecondCardTableProps
                               {weatherObs?.observerInitial || "--"}
                             </Badge>
                           </td>
-
-                          {/* Edit Button */}
-                          <td className="border border-slate-300 p-1">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className={`h-8 w-8 p-0 ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
-                                    onClick={() => handleEditClick(record)}
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="16"
-                                      height="16"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    >
-                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                    </svg>
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {canEdit ? "Edit this record" : "You don't have permission to edit this record"}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </td>
                         </tr>
                       )
                     })
@@ -1362,27 +1326,6 @@ const SecondCardTable = forwardRef(({ refreshTrigger = 0 }: SecondCardTableProps
               </table>
             </div>
 
-            {/* <div className="mt-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-sky-500" />
-                <span className="text-sm text-slate-600">
-                  Date Range:{" "}
-                  <span className="font-medium text-slate-800">
-                    {`${format(new Date(startDate), "MMM d")} - ${format(new Date(endDate), "MMM d, yyyy")}`}
-                  </span>
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-sky-100 text-sky-800 hover:bg-sky-200">
-                  {filteredData.length} record(s)
-                </Badge>
-                {stationFilter !== "all" && (
-                  <Badge variant="outline" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
-                    Station: {stationFilter}
-                  </Badge>
-                )}
-              </div>
-            </div> */}
           </div>
         </div>
 

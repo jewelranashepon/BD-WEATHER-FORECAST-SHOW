@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, ChevronLeft, ChevronRight, CloudSun, Filter, Loader2, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CloudSun, Filter, Loader2, AlertTriangle } from 'lucide-react';
 import { format, parseISO, differenceInDays, isValid } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "@/lib/auth-client";
@@ -24,12 +24,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { utcToHour } from "@/lib/utils";
 import { Download } from 'lucide-react';
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -860,18 +854,6 @@ const FirstCardTable = forwardRef(
       return "bg-red-500";
     };
 
-    const handleEditClick = (
-      record: MeteorologicalEntry,
-      observingTime: ObservingTimeEntry
-    ) => {
-      if (user && canEditRecord(record, user)) {
-        setSelectedRecord(record);
-        setSelectedObservingTime(observingTime);
-        setIsEditDialogOpen(true);
-      } else {
-        setIsPermissionDeniedOpen(true);
-      }
-    };
 
     const handleDateChange = (type: "start" | "end", newDate: string) => {
       const date = new Date(newDate);
@@ -1274,13 +1256,7 @@ const FirstCardTable = forwardRef(
                       >
                         WEATHER
                       </th>
-                      <th
-                        rowSpan={2}
-                        colSpan={1}
-                        className="border border-slate-300 bg-gradient-to-b from-gray-50 to-gray-100 p-1 text-gray-800"
-                      >
-                        Actions
-                      </th>
+                     
                     </tr>
                     <tr>
                       {/* Row for temperature column groups */}
@@ -1416,9 +1392,6 @@ const FirstCardTable = forwardRef(
                       </th>
                       <th className="border border-slate-300 bg-gradient-to-b from-emerald-50 to-emerald-100 text-xs p-1">
                         <div className="h-16 text-emerald-800">Present ww</div>
-                      </th>
-                      <th className="border border-slate-300 bg-gradient-to-b from-gray-50 to-gray-100 text-xs p-1">
-                        <div className="h-16 text-gray-800">Edit</div>
                       </th>
                     </tr>
                   </thead>
@@ -1597,50 +1570,7 @@ const FirstCardTable = forwardRef(
                                 <td className="border border-slate-300 p-1 font-medium text-emerald-700">
                                   {record.presentWeatherWW || "--"}
                                 </td>
-                                <td className="border border-slate-300 p-1">
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          className={`h-8 w-8 p-0 ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
-                                          onClick={() =>
-                                            handleEditClick(
-                                              record,
-                                              observingTime
-                                            )
-                                          }
-                                        >
-                                          <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                          >
-                                            <path
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              strokeWidth={2}
-                                              d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                                            />
-                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                          </svg>
-                                        </Button>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        {canEdit
-                                          ? "Edit this record"
-                                          : "You don't have permission to edit this record"}
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </td>
+                               
                               </tr>
                             );
                           }

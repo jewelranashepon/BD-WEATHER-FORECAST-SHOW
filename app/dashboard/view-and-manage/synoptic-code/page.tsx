@@ -805,9 +805,7 @@ const SynopticCodeTable = forwardRef((props, ref) => {
                   <th className="border border-blue-300 px-4 py-3 whitespace-nowrap">
                     Remarks
                   </th>
-                  <th className="border border-blue-300 px-4 py-3 whitespace-nowrap">
-                    Action
-                  </th>
+                  
                 </tr>
               </thead>
 
@@ -914,28 +912,6 @@ const SynopticCodeTable = forwardRef((props, ref) => {
                           ) : (
                             <span className="text-gray-400 italic">--</span>
                           )}
-                        </td>
-
-                        <td className="border border-blue-200 px-4 py-3 whitespace-nowrap">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className={`h-8 w-8 p-0 ${!canEdit ? "opacity-50 cursor-not-allowed" : ""}`}
-                                  onClick={() => handleEditClick(entry)}
-                                >
-                                  <Edit size={16} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {canEdit
-                                  ? "Edit this record"
-                                  : "You don't have permission to edit this record"}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
                         </td>
                       </tr>
                     );
