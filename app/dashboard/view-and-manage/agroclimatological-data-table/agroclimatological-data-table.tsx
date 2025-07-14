@@ -652,7 +652,7 @@ export default function AgroclimatologicalDataTable() {
 
                     {/* Sun Shine Hour */}
                     <td className="border border-slate-300 p-2 text-center font-medium text-orange-700">
-                      {formatValue(record.sunShineHour)}
+                     {Number(record.sunShineHour).toFixed(2)}
                     </td>
 
                     {/* Air Temperature */}
